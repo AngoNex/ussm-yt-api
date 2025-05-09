@@ -142,6 +142,7 @@ function ussm.SetFilePath( filePath )
 						if not istable( result ) then printf( "[USSM-YT-API/Error] External api error, check api" ) end
 						playlist_info = result
 						if playlist_info.content then
+							printf( "[USSM-YT-API/Info] Playlist successfully received, starting playback" )
 							api_loop()
 						end
 					end,
@@ -156,9 +157,9 @@ function ussm.SetFilePath( filePath )
 			id = string_match( filePath, "youtu%.be/([%w_-]+)" )
 		end
 
-		if id and api_adress then
+		if id and api_adress and not listid then
 			api_query( id )
-		else
+		elseif not listid then
 			SetGlobal2Var( "ussm-start-time", CurTime() )
 			SetGlobal2Var( "ussm-file-path", filePath )
 		end
