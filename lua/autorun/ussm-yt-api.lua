@@ -6,6 +6,7 @@ local string_match = string.match
 local string_find = string.find
 local timer_Simple = timer.Simple
 local table_IsEmpty = table.IsEmpty
+local math_max = math.max
 local CurTime = CurTime
 local HTTP = HTTP
 
@@ -112,17 +113,19 @@ local function api_loop( index )
 	local content = playlist_info["content"]
 	if not playlist_info["content"][ index ] then printf( "[USSM-YT-API/Error] External api error, check api" ) return end
 	local index = index or 1
-	local nextindex = index + 1
+	local nextindex = math_max( 1, ( index + 1 ) % #content )
 	local save = content[ index ].id
 	if index < #content then
 		api_prepare( content[ nextindex ].id )
+	else
+		api_prepare( content[ 1 ].id )
 	end
 	api_query( save, function()
 		local content = playlist_info["content"]
 		if not content then return end
 		if content[ index ].id ~= save then return end
 		if index < #content then
-			api_loop( index + 1 )
+			api_loop( nextindex )
 		end
 	end )
 end
