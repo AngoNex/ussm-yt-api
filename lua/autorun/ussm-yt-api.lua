@@ -13,6 +13,15 @@ local function printf( fmt, ... )
 	return print( string.format( fmt, ... ) )
 end
 
+local function FindIndexById(tbl, targetId)
+  for i, v in ipairs(tbl) do
+    if v.id == targetId then
+      return i
+    end
+  end
+  return nil
+end
+
 local api_adress = nil
 
 local function check_api( adress )
@@ -145,15 +154,16 @@ function ussm.SetFilePath( filePath )
 						playlist_info = result
 						local content = playlist_info.content
 						if content then
-							if table_IsEmpty( content ) and not id then
-								printf( "[USSM-YT-API/Error] External api error, invalid playlist" )
-								return
-							elseif table_IsEmpty( content ) then
+							if table_IsEmpty( content ) and id then
 								api_query( id )
 								return
+							elseif table_IsEmpty( content ) then
+								printf( "[USSM-YT-API/Error] External api error, invalid playlist" )
+								return
+							else
+								printf( "[USSM-YT-API/Info] Playlist successfully received, starting playback" )
+								api_loop( id and FindIndexById( playlist_info.content, id ) or 0 )
 							end
-							printf( "[USSM-YT-API/Info] Playlist successfully received, starting playback" )
-							api_loop( id and table.KeyFromValue( playlist_info.content, id ) or 0 )
 						end
 					end,
 					failed = function( reason )
