@@ -5,6 +5,7 @@ local SetGlobal2Var = SetGlobal2Var
 local string_match = string.match
 local string_find = string.find
 local timer_Simple = timer.Simple
+local table_IsEmpty = table.IsEmpty
 local CurTime = CurTime
 local HTTP = HTTP
 
@@ -100,6 +101,7 @@ local playlist_info = {}
 
 local function api_loop( index )
 	local content = playlist_info["content"]
+	if not playlist_info["content"][ index ] then printf( "[USSM-YT-API/Error] External api error, check api" ) return end
 	local index = index or 1
 	local nextindex = index + 1
 	local save = content[ index ].id
@@ -141,9 +143,17 @@ function ussm.SetFilePath( filePath )
 						local result = JSONToTable( body )
 						if not istable( result ) then printf( "[USSM-YT-API/Error] External api error, check api" ) end
 						playlist_info = result
-						if playlist_info.content then
+						local content = playlist_info.content
+						if content then
+							if table_IsEmpty( content ) and not id then
+								printf( "[USSM-YT-API/Error] External api error, invalid playlist" )
+								return
+							elseif table_IsEmpty( content ) then
+								api_query( id )
+								return
+							end
 							printf( "[USSM-YT-API/Info] Playlist successfully received, starting playback" )
-							api_loop()
+							api_loop( id and table.KeyFromValue( playlist_info.content, id ) or 0 )
 						end
 					end,
 					failed = function( reason )
