@@ -102,14 +102,14 @@ local function api_loop( index )
 	local content = playlist_info["content"]
 	local index = index or 1
 	local nextindex = index + 1
-	local savenextid = content[ nextindex ].id
+	local save = content[ index ].id
 	if index < #content then
-		api_prepare( savenextid )
+		api_prepare( content[ nextindex ].id )
 	end
-	api_query( content[ index ].id, function()
+	api_query( save, function()
 		local content = playlist_info["content"]
 		if not content then return end
-		if content[ index + 1 ] ~= savenextid then return end
+		if content[ index ].id ~= save then return end
 		if index < #content then
 			api_loop( index + 1 )
 		end
