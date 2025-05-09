@@ -128,8 +128,28 @@ function ussm.SetFilePath( filePath )
     if domain then
 		domain = domain:lower()
 		local id = nil
+		local listid = nil
 		if string_find( domain, "youtube%.com$" ) then
 			id = string_match( filePath, "[?&]v=([%w_-]+)" )
+			listid = string_match( filePath, "list=([%w%-_]+)" )
+
+			if listid and api_adress then
+				HTTP( {
+					url = api_adress .. "/playlist/" .. listid,
+					method = "GET",
+					success = function( code, body, headers )
+						local result = JSONToTable( body )
+						if not istable( result ) then printf( "[USSM-YT-API/Error] External api error, check api" ) end
+						playlist_info = result
+						if playlist_info.content then
+							api_loop()
+						end
+					end,
+					failed = function( reason )
+						printf( "[USSM-YT-API/Error] External api error, api is not responding" )
+					end
+				} )
+			end
 		end
 
 		if string_find( domain, "youtu%.be$" ) then
@@ -145,52 +165,9 @@ function ussm.SetFilePath( filePath )
 	end
 end
 
-local function playlist_URL( URL )
-	if not URL or URL == "" or URL == "none" or URL == "nil" then
-		SetGlobal2Var( "ussm-start-time", nil )
-		SetGlobal2Var( "ussm-file-path", nil )
-		playlist_info = {}
-		return
-	end
-
-	local domain = string_match( URL, "^https?://([^/]+)" )
-    if domain then
-		domain = domain:lower()
-		local id = nil
-		if string_find( domain, "youtube%.com$" ) then
-			id = string_match( URL, "list=([%w%-_]+)" )
-		end
-
-		if id and api_adress then
-			HTTP( {
-				url = api_adress .. "/playlist/" .. id,
-				method = "GET",
-				success = function( code, body, headers )
-					local result = JSONToTable( body )
-					if not istable( result ) then printf( "[USSM-YT-API/Error] External api error, check api" ) end
-					playlist_info = result
-					if playlist_info.content then
-						api_loop()
-					end
-				end,
-				failed = function( reason )
-					printf( "[USSM-YT-API/Error] External api error, api is not responding" )
-				end
-			} )
-		end
-	end
-end
-
 local api_cvar = CreateConVar( "sv_ussm_api", "", bit.bor( FCVAR_ARCHIVE, FCVAR_PROTECTED ), "URL address of the deployed external api." )
 check_api( api_cvar:GetString() )
 
 cvars.AddChangeCallback( api_cvar:GetName(), function( _, __, value )
 	check_api( value )
-end )
-
-local playlist_cvar = CreateConVar( "sv_ussm_playlist", "", FCVAR_NOTIFY, "URL address of the deployed external api." )
-playlist_URL( playlist_cvar:GetString() )
-
-cvars.AddChangeCallback( playlist_cvar:GetName(), function( _, __, value )
-	playlist_URL( value )
 end )
