@@ -23,6 +23,9 @@ local function api_query( id )
                 ussm.SetStartTime( CurTime() )
 				SetGlobal2Var( "ussm-file-path", api_adress .. "/download/" .. result.id )
 			end
+            if result.error then
+                printf( "[USSM-YT-API/Error] External api error, " .. result.error )
+            end
 		end,
 		failed = function( reason )
 			HTTP( {
@@ -41,6 +44,9 @@ local function api_query( id )
 					else
 						printf( "[USSM-YT-API/Error] External api error, check api" )
 					end
+                    if result.error then
+                        printf( "[USSM-YT-API/Error] External api error, " .. result.error )
+                    end
 				end,
 				failed = function( reason )
 					printf( "[USSM-YT-API/Error] External api error, api is not responding" )
@@ -90,7 +96,11 @@ local function check_api( adress )
                 api_adress = adress
                 printf( "[USSM-YT-API/Info] API connection established" )
             else
-                printf( "[USSM-YT-API/Error] External api error, check api" )
+                if result.error then
+                    printf( "[USSM-YT-API/Error] External api error, " .. result.error )
+                else
+                    printf( "[USSM-YT-API/Error] External api error, check api" )
+                end
             end
         end,
         failed = function( reason )
