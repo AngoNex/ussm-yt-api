@@ -56,7 +56,7 @@ local function api_query( id, endfunc )
 		method = "GET",
 		success = function( code, body, headers )
 			local result = JSONToTable( body )
-			if not istable( result )  then printf( "[USSM-YT-API/Error] External api error, check api" ) end
+			if not istable( result ) then printf( "[USSM-YT-API/Error] External api error, check api" ) end
             if result.ready then
                 ussm.SetStartTime( CurTime() )
 				SetGlobal2Var( "ussm-file-path", api_adress .. "/download/" .. result.id )
@@ -115,18 +115,12 @@ local function api_loop( index )
 	local index = index or 1
 	local nextindex = math_max( 1, ( index + 1 ) % #content )
 	local save = content[ index ].id
-	if index < #content then
-		api_prepare( content[ nextindex ].id )
-	else
-		api_prepare( content[ 1 ].id )
-	end
+	api_prepare( content[ nextindex ].id )
 	api_query( save, function()
 		local content = playlist_info["content"]
 		if not content then return end
 		if content[ index ].id ~= save then return end
-		if index < #content then
-			api_loop( nextindex )
-		end
+		api_loop( nextindex )
 	end )
 end
 
