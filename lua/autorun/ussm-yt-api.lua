@@ -14,13 +14,13 @@ local function printf( fmt, ... )
 	return print( string.format( fmt, ... ) )
 end
 
-local function FindIndexById(tbl, targetId)
-  for i, v in ipairs(tbl) do
-    if v.id == targetId then
-      return i
-    end
-  end
-  return nil
+local function FindIndexById( tbl, targetId )
+  	for i, v in ipairs( tbl ) do
+    	if v.id == targetId then
+      		return i
+    	end
+  	end
+	return nil
 end
 
 local api_adress = nil
