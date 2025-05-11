@@ -180,6 +180,9 @@ function ussm.SetFilePath( filePath )
 			SetGlobal2Var( "ussm-start-time", CurTime() )
 			SetGlobal2Var( "ussm-file-path", filePath )
 		end
+	else
+		SetGlobal2Var( "ussm-start-time", CurTime() )
+		SetGlobal2Var( "ussm-file-path", filePath )
 	end
 end
 
