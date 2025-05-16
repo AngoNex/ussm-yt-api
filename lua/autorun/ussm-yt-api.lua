@@ -187,7 +187,9 @@ function ussm.SetFilePath( filePath )
 end
 
 local api_cvar = CreateConVar( "sv_ussm_api", "", bit.bor( FCVAR_ARCHIVE, FCVAR_PROTECTED ), "URL address of the deployed external api." )
-check_api( api_cvar:GetString() )
+timer_Simple( 0, function()
+	check_api( api_cvar:GetString() )
+end)
 
 cvars.AddChangeCallback( api_cvar:GetName(), function( _, __, value )
 	check_api( value )
