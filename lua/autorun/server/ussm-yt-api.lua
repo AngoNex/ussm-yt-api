@@ -104,7 +104,19 @@ end
 ---@param playlist_id string
 ---@param video_id? integer
 local function play_playlist( base_url, playlist_id, video_id )
-	http.Fetch( base_url .. "/playlist/" .. playlist_id, function( body, size, headers, code )
+	printf( "[USSM-YTA] Preparing playlist '%s', give me a few minutes...", playlist_id )
+
+	http.Fetch( base_url .. "/playlist/" .. playlist_id, function( body, _, __, code )
+		if code ~= 200 then
+			if video_id == nil then
+				printf( "[USSM-YTA] API error: wrong status code (%d)", code )
+			else
+				play_video( base_url, video_id )
+			end
+
+			return
+		end
+
 		local playlist = util.JSONToTable( body )
 		if playlist == nil then
 			printf( "[USSM-YTA] API error: json corrupted" )
@@ -164,8 +176,8 @@ hook.Add( "USSM::Play", "USSM-YT-API", function( file_path )
 		return "none"
 	end
 
-	base_url = string.match( base_url, "^(https?://.+)/?" )
-	domain_name = string.match( domain_name, "^www%.(.+)" )
+	base_url = string.match( base_url, "^(https?://.+)/?" ) or base_url
+	domain_name = string.match( domain_name, "^www%.(.+)" ) or domain_name
 
 	if domain_name == "youtube.com" then
 		local video_id = string.match( file_path, "[?&]v=([%w_-]+)" )
