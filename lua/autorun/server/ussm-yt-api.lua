@@ -111,6 +111,7 @@ local function play_playlist( base_url, playlist_id, video_id )
 			if video_id == nil then
 				printf( "[USSM-YTA] API error: wrong status code (%d)", code )
 			else
+				printf( "[USSM-YTA] Playlist loading failed, but we have video id so..." )
 				play_video( base_url, video_id )
 			end
 
@@ -128,6 +129,7 @@ local function play_playlist( base_url, playlist_id, video_id )
 			if video_id == nil then
 				printf( "[USSM-YTA] API error: playlist is empty" )
 			else
+				printf( "[USSM-YTA] Playlist is missing, but we have video id so..." )
 				play_video( base_url, video_id )
 			end
 
@@ -182,16 +184,16 @@ hook.Add( "USSM::Play", "USSM-YT-API", function( file_path )
 	if domain_name == "youtube.com" then
 		local video_id = string.match( file_path, "[?&]v=([%w_-]+)" )
 
-		local playlist_id = string.match( file_path, "list=([%w%-_]+)" )
-		if playlist_id == nil then
+		-- local playlist_id = string.match( file_path, "list=([%w%-_]+)" )
+		-- if playlist_id == nil then
 			if video_id == nil then
 				printf( "[USSM-YTA] API error: video id not found" )
 			else
 				play_video( base_url, video_id )
 			end
-		else
-			play_playlist( base_url, playlist_id, video_id )
-		end
+		-- else
+		-- 	play_playlist( base_url, playlist_id, video_id )
+		-- end
 
 		return "none"
 	elseif domain_name == "youtu.be" then
