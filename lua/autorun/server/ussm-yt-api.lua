@@ -33,8 +33,10 @@ local function queue_failure( base_url, video_id, on_finish )
 			ussm.SetFilePath( base_url .. "/download/" .. result.id )
 		elseif status == "downloading" then
 			play_video( base_url, video_id, on_finish )
-		else
+		elseif status == nil then
 			printf( "[USSM-YTA] API error: unknown status" )
+		else
+			printf( "[USSM-YTA] API error: unknown status '%s'", status )
 		end
 	end, function( err_msg )
 		printf( "[USSM-YTA] API error: %s", err_msg )
@@ -160,6 +162,11 @@ local function play_playlist( base_url, playlist_id, video_id )
 	end )
 end
 
+local yt_domains = {
+	["youtube.com"] = true,
+	["youtu.be"] = true
+}
+
 hook.Add( "USSM::Play", "USSM-YT-API", function( file_path )
 	timer.Remove( "USSM-YTA" )
 
@@ -172,6 +179,12 @@ hook.Add( "USSM::Play", "USSM-YT-API", function( file_path )
 		return
 	end
 
+	domain_name = string.match( domain_name, "^www%.(.+)" ) or domain_name
+
+	if domain_name == nil or yt_domains[ domain_name ] == nil then
+		return
+	end
+
 	local base_url = api_url:GetString()
 	if base_url == "" then
 		printf( "[USSM-YTA] The external API is not configured, cancelling..." )
@@ -179,7 +192,6 @@ hook.Add( "USSM::Play", "USSM-YT-API", function( file_path )
 	end
 
 	base_url = string.match( base_url, "^(https?://.+)/?" ) or base_url
-	domain_name = string.match( domain_name, "^www%.(.+)" ) or domain_name
 
 	if domain_name == "youtube.com" then
 		local video_id = string.match( file_path, "[?&]v=([%w_-]+)" )
